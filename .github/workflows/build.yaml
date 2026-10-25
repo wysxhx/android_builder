@@ -1,5 +1,4 @@
-name: Build Android APK
-
+name: Build TVBoxOS Java
 on:
   push:
     branches: [ main ]
@@ -8,9 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout TVBoxOS source
+      - name: Checkout source
         uses: actions/checkout@v4
         with:
           repository: wysxhx/TVBoxOS
@@ -22,14 +20,25 @@ jobs:
           distribution: temurin
           java-version: '11'
 
-      - name: Build JavaDebug APK
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('TVBoxOS/**/*.gradle*') }}
+
+      - name: Build assembleJavaDebug
         working-directory: TVBoxOS
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleJavaDebug --info
+          ./gradlew assembleJavaDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: TVBox-debug-apk
+          name: TVBox-Java-Debug
           path: TVBoxOS/app/build/outputs/apk/debug/*.apk
