@@ -14,12 +14,15 @@ jobs:
           java-version: 17
           distribution: 'temurin'
 
-      # 安装Python3.8（Chaquopy需要）
+      # 用 deadsnakes 安装 python3.8
       - name: Install Python3.8
         run: |
           sudo apt update
+          sudo apt install -y software-properties-common
+          sudo add-apt-repository ppa:deadsnakes/ppa -y
+          sudo apt update
           sudo apt install -y python3.8 python3.8-dev
-      - name: Set Python env
+      - name: Set Python env for chaquopy
         run: echo "BUILD_PYTHON=/usr/bin/python3.8" >> $GITHUB_ENV
 
       - name: Check project-to-build file
