@@ -10,30 +10,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 拉取 TVBoxOS 源码
+      - name: Checkout TVBoxOS source
         uses: actions/checkout@v4
         with:
           repository: wysxhx/TVBoxOS
           path: TVBoxOS
 
-      - name: 安装 JDK 11
+      - name: Setup JDK 11
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '11'
 
-      - name: 安装 Python 3.8（给 Python 爬虫用）
+      - name: Install Python3.8
         run: |
           sudo apt update
           sudo apt install -y python3.8 python3.8-dev python3.8-venv python3.8-distutils gcc g++ libffi-dev libssl-dev
 
-      - name: 编译 Debug 包
+      - name: Build JavaDebug APK
         working-directory: TVBoxOS
         run: |
           chmod +x ./gradlew
           ./gradlew assembleJavaDebug --info
 
-      - name: 上传 APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: TVBox-debug-apk
