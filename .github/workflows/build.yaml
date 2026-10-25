@@ -14,11 +14,6 @@ jobs:
           java-version: 17
           distribution: 'temurin'
 
-      - name: Install Android SDK
-        uses: android-actions/setup-android@v3
-        env:
-          SKIP_JDK_VERSION_CHECK: true
-
       - name: Check project-to-build file
         run: |
           ls -la
@@ -31,7 +26,7 @@ jobs:
       - name: Clone project
         run: git clone --depth=1 ${{ env.PROJECT }} project
 
-      # 关键：自动创建 local.properties，写入sdk.dir
+      # 直接利用系统自带SDK路径生成 local.properties，不再调用setup-android
       - name: Generate local.properties
         run: echo "sdk.dir=$ANDROID_HOME" > ./project/local.properties
 
