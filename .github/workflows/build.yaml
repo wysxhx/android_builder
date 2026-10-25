@@ -14,6 +14,14 @@ jobs:
           java-version: 17
           distribution: 'temurin'
 
+      # 安装Python3.8（Chaquopy需要）
+      - name: Install Python3.8
+        run: |
+          sudo apt update
+          sudo apt install -y python3.8 python3.8-dev
+      - name: Set Python env
+        run: echo "BUILD_PYTHON=/usr/bin/python3.8" >> $GITHUB_ENV
+
       - name: Check project-to-build file
         run: |
           ls -la
@@ -26,7 +34,6 @@ jobs:
       - name: Clone project
         run: git clone --depth=1 ${{ env.PROJECT }} project
 
-      # 直接利用系统自带SDK路径生成 local.properties，不再调用setup-android
       - name: Generate local.properties
         run: echo "sdk.dir=$ANDROID_HOME" > ./project/local.properties
 
