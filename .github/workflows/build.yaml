@@ -14,9 +14,6 @@ jobs:
           java-version: 17
           distribution: 'temurin'
 
-      - name: Install Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Check project-to-build file
         run: |
           ls -la
