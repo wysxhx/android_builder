@@ -20,12 +20,9 @@ jobs:
           sudo apt install -y python3.8 python3.8-dev python3.8-venv python3.8-distutils gcc g++ libffi-dev libssl-dev
           python3.8 -c "import distutils.util; print('distutils ok')"
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Patch build.gradle replace windows python path
         run: |
-          cd project/pyramid
+          cd pyramid
           sed -i 's|D:/python38/python.exe|/usr/bin/python3.8|g' build.gradle
 
       - name: Grant gradlew execute permission
@@ -38,4 +35,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-apk
-          path: project/pyramid/build/outputs/apk/debug/*.apk
+          path: pyramid/build/outputs/apk/debug/*.apk
