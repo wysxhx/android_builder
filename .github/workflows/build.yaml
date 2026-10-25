@@ -1,54 +1,41 @@
-name: android_build
+name: Build Android APK
 on:
+  push:
+    branches: [ main ]
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the code
+      - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v5
-        with:
-          java-version: 17
-          distribution: 'temurin'
-
-      # 用 deadsnakes 安装 python3.8
-      - name: Install Python3.8
+      - name: Install system dependencies & Python3.8
         run: |
           sudo apt update
           sudo apt install -y software-properties-common
-          sudo add-apt-repository ppa:deadsnakes/ppa -y
+          sudo add-apt-repository -y ppa:deadsnakes/ppa
           sudo apt update
-          sudo apt install -y python3.8 python3.8-dev
-      - name: Set Python env for chaquopy
-        run: echo "BUILD_PYTHON=/usr/bin/python3.8" >> $GITHUB_ENV
+          sudo apt install -y python3.8 python3.8-dev python3.8-venv python3.8-distutils gcc g++ libffi-dev libssl-dev
+          python3.8 -c "import distutils.util; print('distutils ok')"
 
-      - name: Check project-to-build file
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Patch build.gradle replace windows python path
         run: |
-          ls -la
-          cat project-to-build
+          cd project/pyramid
+          sed -i 's|D:/python38/python.exe|/usr/bin/python3.8|g' build.gradle
 
-      - id: get-project
-        name: Get project name
-        run: echo "PROJECT=$(cat project-to-build)" >> $GITHUB_ENV
+      - name: Grant gradlew execute permission
+        run: chmod +x ./gradlew
 
-      - name: Clone project
-        run: git clone --depth=1 ${{ env.PROJECT }} project
-
-      - name: Generate local.properties
-        run: echo "sdk.dir=$ANDROID_HOME" > ./project/local.properties
-
-      - name: Build the app
-        working-directory: ./project
-        run: |
-          if [ ! -f "gradlew" ]; then gradle wrapper; fi
-          chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --info
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: my-build-apk
-          path: ./project/**/*.apk
+          name: app-apk
+          path: project/pyramid/build/outputs/apk/debug/*.apk
