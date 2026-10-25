@@ -33,11 +33,15 @@ jobs:
             ~/.gradle/wrapper
           key: gradle-${{ hashFiles('TVBoxOS/**/*.gradle*') }}
 
-      - name: 替换maven镜像为阿里云
+      - name: 替换maven镜像为阿里云（build+settings）
         working-directory: TVBoxOS
         run: |
           sed -i 's/mavenCentral()/maven { url "https:\/\/maven.aliyun.com\/repository\/public" }/g' build.gradle
           sed -i 's/google()/maven { url "https:\/\/maven.aliyun.com\/repository\/google" }/g' build.gradle
+          if [ -f settings.gradle ]; then
+            sed -i 's/mavenCentral()/maven { url "https:\/\/maven.aliyun.com\/repository\/public" }/g' settings.gradle
+            sed -i 's/google()/maven { url "https:\/\/maven.aliyun.com\/repository\/google" }/g' settings.gradle
+          fi
 
       - name: Build assembleJavaDebug
         working-directory: TVBoxOS
