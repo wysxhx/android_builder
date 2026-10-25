@@ -1,4 +1,5 @@
 name: Build Android APK
+
 on:
   push:
     branches: [ main ]
@@ -7,32 +8,33 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
 
-      - name: Install system dependencies & Python3.8
+    steps:
+      - name: 拉取 TVBoxOS 源码
+        uses: actions/checkout@v4
+        with:
+          repository: wysxhx/TVBoxOS
+          path: TVBoxOS
+
+      - name: 安装 JDK 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: 安装 Python 3.8（给 Python 爬虫用）
         run: |
-          sudo apt update
-          sudo apt install -y software-properties-common
-          sudo add-apt-repository -y ppa:deadsnakes/ppa
           sudo apt update
           sudo apt install -y python3.8 python3.8-dev python3.8-venv python3.8-distutils gcc g++ libffi-dev libssl-dev
-          python3.8 -c "import distutils.util; print('distutils ok')"
 
-      - name: Patch build.gradle replace windows python path
+      - name: 编译 Debug 包
+        working-directory: TVBoxOS
         run: |
-          cd pyramid
-          sed -i 's|D:/python38/python.exe|/usr/bin/python3.8|g' build.gradle
+          chmod +x ./gradlew
+          ./gradlew assembleJavaDebug --info
 
-      - name: Grant gradlew execute permission
-        run: chmod +x ./gradlew
-
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --info
-
-      - name: Upload APK
+      - name: 上传 APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-apk
-          path: pyramid/build/outputs/apk/debug/*.apk
+          name: TVBox-debug-apk
+          path: TVBoxOS/app/build/outputs/apk/debug/*.apk
