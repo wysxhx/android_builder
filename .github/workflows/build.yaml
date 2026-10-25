@@ -1,4 +1,4 @@
-name: android_build 
+name: android_build
 on:
   workflow_dispatch:
 jobs:
@@ -14,6 +14,11 @@ jobs:
           java-version: 17
           distribution: 'temurin'
 
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
+        env:
+          SKIP_JDK_VERSION_CHECK: true
+
       - name: Check project-to-build file
         run: |
           ls -la
@@ -25,6 +30,10 @@ jobs:
 
       - name: Clone project
         run: git clone --depth=1 ${{ env.PROJECT }} project
+
+      # 关键：自动创建 local.properties，写入sdk.dir
+      - name: Generate local.properties
+        run: echo "sdk.dir=$ANDROID_HOME" > ./project/local.properties
 
       - name: Build the app
         working-directory: ./project
