@@ -14,16 +14,22 @@ jobs:
           repository: wysxhx/TVBoxOS
           path: TVBoxOS
 
-      - name: Setup JDK 11
+      # 先装Java17，给sdkmanager运行用
+      - name: Setup JDK 17 (for sdkmanager)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      # 再切回JDK11，给Gradle编译TVBox项目
+      - name: Switch to JDK 11 for project build
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '11'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
-        env:
-          SKIP_JDK_VERSION_CHECK: true
 
       - name: Cache Gradle
         uses: actions/cache@v4
